@@ -6,19 +6,28 @@
  */
 class XPHPExcel extends CComponent
 {
-	private static $_isInitialized = false;
-	
+	private $_isInitialized = false;
+
+	/**
+	 * Path to phpExcel from  yii config
+	 * @var null
+	 */
+	public  $phpExcelPath = null;
+
 	/**
 	 * Register autoloader.
 	 */
-	public static function init()
+	public function init()
 	{
-		if (!self::$_isInitialized) {
+		if ($this->phpExcelPath == null){
+			throw new CException('Configure path to PHPExcel in config file!');
+		}
+
+		if ($this->_isInitialized === false) {
 			spl_autoload_unregister(array('YiiBase', 'autoload'));
-			require(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'PHPExcel.php');
+			require(Yii::getPathOfAlias($this->phpExcelPath) . DIRECTORY_SEPARATOR . 'PHPExcel.php');
 			spl_autoload_register(array('YiiBase', 'autoload'));
-			
-			self::$_isInitialized = true;
+			$this->_isInitialized = true;
 		}
 	}
 	
@@ -26,9 +35,9 @@ class XPHPExcel extends CComponent
 	 * Returns new PHPExcel object. Automatically registers autoloader.
 	 * @return PHPExcel
 	 */
-	public static function createPHPExcel()
+	public function createPHPExcel()
 	{
-		self::init();
+		$this->init();
 		return new PHPExcel;
 	}
 }
